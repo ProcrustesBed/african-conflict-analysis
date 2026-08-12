@@ -119,10 +119,10 @@ class MapGenerator:
         maske = df_copy.duplicated(subset=["LATITUDE", "LONGITUDE"], keep=False)
             
         anzahl = maske.sum()
-
+        
         if anzahl > 0:
-            zufall_lat = np.random.uniform(-0.01, 0.01, size=anzahl)
-            zufall_lon = np.random.uniform(-0.01, 0.01, size=anzahl)
+            zufall_lat = np.random.uniform(-0.03, 0.03, size=anzahl)
+            zufall_lon = np.random.uniform(-0.03, 0.03, size=anzahl)
             df_copy.loc[maske, "LATITUDE"] += zufall_lat
             df_copy.loc[maske, "LONGITUDE"] += zufall_lon
         
@@ -186,11 +186,18 @@ class MapGenerator:
         legend_html = f'''
         {{% macro html(this, kwargs) %}}
         <div style="position: fixed; 
-            bottom: 50px; left: 50px; width: 310px; height: auto; 
+            bottom: 50px; left: 50px; width: 320px; height: auto; 
             border:2px solid grey; z-index:9999; font-size:14px;
-            background-color:white; opacity: 0.85;">
+            background-color:white; opacity: 0.85; padding: 8px;">
+            
             &nbsp; <b>Legend</b> <br>
             {legend_items}
+            
+            <hr style="margin: 8px 0; border: 0; border-top: 1px solid #ccc;">
+    
+            <div style="font-size: 11px; color: #555; font-style: italic; line-height: 1.2;">
+                Note: Jitter between -0.03 and 0.03 degrees was applied to events with identical coordinates.
+            </div>
         </div>
         {{% endmacro %}}
         '''
@@ -212,9 +219,7 @@ class MapGenerator:
         circle_layer = folium.FeatureGroup(name="Events (Circles)", show=True)
         
         aggregated_map = self.aggregated_events.sort_values(by='FATALITIES', ascending=False)
-        print(aggregated_map["LATITUDE"].head())
-        aggregated_map = self._apply_jitter(aggregated_map)
-        print(aggregated_map["LATITUDE"].head())        
+        aggregated_map = self._apply_jitter(aggregated_map)     
         
         singles_map = self.single_events.sort_values(by='FATALITIES', ascending=False)
         singles_map = self._apply_jitter(singles_map)
